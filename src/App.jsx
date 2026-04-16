@@ -7,6 +7,7 @@ import { FactCard }      from './components/FactCard';
 import { ActionBar }     from './components/ActionBar';
 import './styles/global.css';
 import styles from './App.module.css';
+import { supabase } from '/dist/supabaseClient'
 
 export default function App() {
   const { fact, loading, loadFact } = useFact();
