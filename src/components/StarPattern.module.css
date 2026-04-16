@@ -1,0 +1,8 @@
+.pattern {
+  position: fixed;
+  inset: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpolygon points='40,4 47,28 72,28 52,44 59,68 40,54 21,68 28,44 8,28 33,28' fill='none' stroke='%23c9a84c' stroke-width='1'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}

@@ -1,0 +1,61 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  animation: fadeUp 1s ease both 0.4s;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.btnRow {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  transition: all var(--transition);
+  padding: 11px 22px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--gold);
+  color: #0e0d08;
+  border-color: var(--gold);
+  font-weight: 600;
+}
+.primary:not(:disabled):hover { background: var(--gold-light); }
+.primary:not(:disabled):active { transform: scale(0.97); }
+
+.ghost {
+  background: transparent;
+  color: var(--text-dim);
+}
+.ghost:not(:disabled):hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-align: center;
+  opacity: 0.7;
+}

@@ -1,0 +1,12 @@
+.app {
+  position: relative;
+  z-index: 1;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 48px 24px 36px;
+  max-width: 480px;
+  margin: 0 auto;
+}
