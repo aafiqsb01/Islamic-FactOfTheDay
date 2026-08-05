@@ -5,6 +5,7 @@ import { StarPattern }   from './components/StarPattern';
 import { Header }        from './components/Header';
 import { FactCard }      from './components/FactCard';
 import { ActionBar }     from './components/ActionBar';
+import { NotificationToggle } from './components/NotificationToggle';
 import './styles/global.css';
 import styles from './App.module.css';
 
@@ -56,6 +57,7 @@ export default function App() {
       <main className={styles.app}>
         <Header dateString={dateString} />
         <FactCard fact={fact} loading={loading} animKey={animKey} />
+        <NotificationToggle />
         <ActionBar
           onNewFact={handleNewFact}
           onShare={handleShare}
