@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseAdmin, ensureTodaysDailyFact } from '../lib/dailyFact.js';
 
 const env = (key) => process.env[key]?.trim();
 
@@ -6,41 +6,15 @@ const APP_ID =
   env('VITE_ONESIGNAL_APP_ID') || '14996b7d-30b9-4a71-8f1c-cae2395e750e';
 const SITE_URL = 'https://islamic-factoftheday.vercel.app';
 
-function getDayOfYear(date = new Date()) {
-  const start = Date.UTC(date.getUTCFullYear(), 0, 0);
-  const now = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-  return Math.floor((now - start) / (1000 * 60 * 60 * 24));
-}
-
-async function fetchFacts() {
-  const supabaseUrl = env('VITE_SUPABASE_URL') || env('SUPABASE_URL');
-  const supabaseKey = env('VITE_SUPABASE_ANON_KEY') || env('SUPABASE_ANON_KEY');
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase env vars (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY)');
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  const { data, error } = await supabase
-    .from('facts')
-    .select('text, category, source_title, source_url')
-    .order('id', { ascending: true });
-
-  if (error) throw error;
-  if (!data?.length) throw new Error('No facts found in database');
-
-  return data;
-}
-
-function selectTodaysFact(facts) {
-  const index = getDayOfYear() % facts.length;
-  return { fact: facts[index], index };
-}
-
-async function sendOneSignalNotification(factText) {
+async function sendOneSignalNotification(fact, date) {
   const restApiKey = env('ONESIGNAL_REST_API_KEY');
   if (!restApiKey) {
     throw new Error('Missing ONESIGNAL_REST_API_KEY environment variable');
+  }
+
+  const factText = fact.fact?.trim();
+  if (!factText) {
+    throw new Error('Selected daily fact has empty text');
   }
 
   const response = await fetch('https://onesignal.com/api/v1/notifications', {
@@ -55,6 +29,10 @@ async function sendOneSignalNotification(factText) {
       headings: { en: 'Islamic Fact of the Day 🌙' },
       contents: { en: factText },
       url: SITE_URL,
+      data: {
+        factId: fact.id,
+        date,
+      },
     }),
   });
 
@@ -86,30 +64,26 @@ export default async function handler(req, res) {
   }
 
   try {
-    const facts = await fetchFacts();
-    const { fact, index } = selectTodaysFact(facts);
-    const factText = fact.text?.trim();
-
-    if (!factText) {
-      throw new Error(`Selected fact at index ${index} has empty text`);
-    }
-
-    const data = await sendOneSignalNotification(factText);
+    const { supabase } = createSupabaseAdmin();
+    const daily = await ensureTodaysDailyFact(supabase);
+    const data = await sendOneSignalNotification(daily.fact, daily.date);
 
     return res.status(200).json({
       success: true,
       data,
       meta: {
-        dayOfYear: getDayOfYear(),
-        factIndex: index,
-        factPreview: factText.slice(0, 120),
+        date: daily.date,
+        factId: daily.factId,
+        created: daily.created,
+        historyId: daily.historyId,
+        factPreview: daily.fact.fact.slice(0, 120),
       },
     });
   } catch (error) {
     console.error('[send-daily-fact]', error);
     return res.status(500).json({
       success: false,
-      error: error.message || 'Failed to send daily fact notification',
+      error: 'Failed to send daily fact notification',
     });
   }
 }
