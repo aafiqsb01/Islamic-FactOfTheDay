@@ -15,7 +15,7 @@ export default function App() {
 
   
   async function handleNewFact() {
-    await loadFact(true);
+    await loadFact();
     setAnimKey(prev => prev + 1);
   }
 
